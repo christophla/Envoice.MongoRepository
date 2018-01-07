@@ -1,0 +1,13 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    "files.eol": "\n",
+    "search.exclude": {
+        "**/bower_components": true,
+        "**/dist": true,
+        "**/node_modules": true
+    },
+    "tslint.autoFixOnSave": true,
+    "tslint.exclude": "**/node_modules/**/*",
+    "tslint.ignoreDefinitionFiles": false,
+    "typescript.referencesCodeLens.enabled": true
+}
