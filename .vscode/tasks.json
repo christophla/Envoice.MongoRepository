@@ -70,9 +70,9 @@
             },
             "problemMatcher": [],
             "windows": {
-                "command": ".\\scripts\\project-tasks.ps1 - IntegrationTests -Environment Debug"
+                "command": ".\\scripts\\project-tasks.ps1 -IntegrationTests -Environment Debug"
             }
-        }, 
+        },
         {
             "label": "logs",
             "type": "shell",

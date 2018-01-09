@@ -5,6 +5,7 @@ using Xunit;
 
 namespace Envoice.MongoRepository.IntegrationTests.Tests
 {
+    [Collection(Collections.Database)]
     public class RepositoryManagerTests : TestsBase
     {
         [Fact]
