@@ -2,7 +2,7 @@ using MongoDB.Driver;
 using System.Collections.Generic;
 using System;
 using MongoDB.Bson;
-using Envoice.MongoRepository.Impl;
+using Envoice.MongoRepository;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Linq.Expressions;

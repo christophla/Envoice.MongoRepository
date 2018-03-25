@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Envoice.MongoRepository.Impl;
+using Bogus;
+using Envoice.MongoRepository;
 using Envoice.MongoRepository.IntegrationTests.Entities;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Envoice.MongoRepository.IntegrationTests.Tests
@@ -12,26 +14,31 @@ namespace Envoice.MongoRepository.IntegrationTests.Tests
     public abstract class TestsBase
     {
         protected IList<Customer> TestCustomers;
+        protected string ConnectionString => Configuration.Database.ConnectionString;
+        protected string VirtualConnectionString => Configuration.Database.VirtualConnectionString;
 
         protected TestsBase() : base()
         {
-            var url = new MongoUrl(Configuration.Database.ConnectionString);
-            var client = new MongoClient(url);
-            client.DropDatabase(url.DatabaseName);
+            // var url = new MongoUrl(Configuration.Database.ConnectionString);
+            // var client = new MongoClient(url);
+            // var database = client.GetDatabase(url.DatabaseName);
 
-            InitializeTestData();
-        }
+            // // clear collections per test
+            // foreach (var item in database.ListCollections().ToList<BsonDocument>())
+            // {
+            //     database.DropCollection(item.ToString());
+            // }
 
-        /// <summary>
-        /// Initializes the test data
-        /// </summary>
-        protected void InitializeTestData()
-        {
+            // var customerRepository = new MongoRepository<Customer>();
+            // customerRepository.DeleteAll();
+
+            var faker = new Faker("en");
             this.TestCustomers = new List<Customer>{
-                new Customer{FirstName = "Joe", LastName = "Smith 1"},
-                new Customer{FirstName = "Joe", LastName = "Smith 2"},
-                new Customer{FirstName = "Joe", LastName = "Smith 3"}
+                new Customer{FirstName = faker.Name.FirstName(), LastName = faker.Name.LastName()},
+                new Customer{FirstName = faker.Name.FirstName(), LastName = faker.Name.LastName()},
+                new Customer{FirstName = faker.Name.FirstName(), LastName = faker.Name.LastName()}
             };
         }
+
     }
 }

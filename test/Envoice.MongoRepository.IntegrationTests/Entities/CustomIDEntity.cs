@@ -1,19 +1,21 @@
 using System;
-using Envoice.MongoRepository.Impl;
+using Envoice.MongoRepository;
 
 namespace Envoice.MongoRepository.IntegrationTests.Entities
 {
-  public class CustomIDEntity : IEntity
-  {
-    private string _id;
-    public string Id
+    public class CustomIDEntity : IEntity
     {
-      get { return _id; }
-      set { _id = value; }
-    }
-    public DateTime CreatedOn => DateTime.UtcNow;
-  }
+        private string _id;
+        public string Id
+        {
+            get { return _id; }
+            set { _id = value; }
+        }
+        public DateTime CreatedOn => DateTime.UtcNow;
 
-  [CollectionName("MyTestCollection")]
-  public class CustomIDEntityCustomCollection : CustomIDEntity { }
+        public string ObjectTypeId { get; set; }
+    }
+
+    [CollectionName("MyTestCollection")]
+    public class CustomIDEntityCustomCollection : CustomIDEntity { }
 }

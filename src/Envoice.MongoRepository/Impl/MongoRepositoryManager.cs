@@ -10,7 +10,7 @@ using System.Threading;
 using MongoDB.Bson.Serialization.Conventions;
 using System.Linq.Expressions;
 
-namespace Envoice.MongoRepository.Impl
+namespace Envoice.MongoRepository
 {
 
     /// <summary>
@@ -59,8 +59,7 @@ namespace Envoice.MongoRepository.Impl
         /// Uses the Default App/Web.Config connection strings to fetch the connectionString and Database name.
         /// </summary>
         /// <remarks>Default constructor defaults to "MongoServerSettings" key for connection string.</remarks>
-        public MongoRepositoryManager()
-            : this(Configuration.Database.ConnectionString)
+        public MongoRepositoryManager() : this(Configuration.Database.ConnectionString)
         {
         }
 
@@ -68,24 +67,20 @@ namespace Envoice.MongoRepository.Impl
         /// Initializes a new instance of the MongoRepositoryManager class.
         /// </summary>
         /// <param name="connectionString">Connection string to use for connecting to MongoDB.</param>
-        public MongoRepositoryManager(string connectionString)
+        public MongoRepositoryManager(string connectionString) : this(new MongoRepositoryConfig(connectionString))
         {
-            Condition.Requires(connectionString, "connectionString").IsNotNullOrWhiteSpace();
-
-            this.collection = Util<TKey>.GetCollectionFromConnectionString<T>(connectionString);
         }
 
         /// <summary>
         /// Initializes a new instance of the MongoRepositoryManager class.
         /// </summary>
         /// <param name="connectionString">Connection string to use for connecting to MongoDB.</param>
-        /// <param name="collectionName">The name of the collection to use.</param>
-        public MongoRepositoryManager(string connectionString, string collectionName)
+        /// <param name="config">The configuration.</param>
+        public MongoRepositoryManager(MongoRepositoryConfig config)
         {
-            Condition.Requires(connectionString, "connectionString").IsNotNullOrWhiteSpace();
-            Condition.Requires(collectionName, "collectionName").IsNotNullOrWhiteSpace();
+            Condition.Requires(config, "config").IsNotNull();
 
-            this.collection = Util<TKey>.GetCollectionFromConnectionString<T>(connectionString, collectionName);
+            this.collection = config.GetCollection<T, TKey>();
         }
 
         /// <summary>
@@ -93,13 +88,13 @@ namespace Envoice.MongoRepository.Impl
         /// </summary>
         /// <param name="database">The database instance</param>
         /// <param name="collectionName">The name of the collection to use.</param>
-        public MongoRepositoryManager(IMongoDatabase database, string collectionName)
-        {
-            Condition.Requires(database, "database").IsNotNull();
-            Condition.Requires(collectionName, "collectionName").IsNotNullOrWhiteSpace();
+        // public MongoRepositoryManager(IMongoDatabase database, string collectionName)
+        // {
+        //     Condition.Requires(database, "database").IsNotNull();
+        //     Condition.Requires(collectionName, "collectionName").IsNotNullOrWhiteSpace();
 
-            this.collection = database.GetCollection<T>(collectionName);
-        }
+        //     this.collection = database.GetCollection<T>(collectionName);
+        // }
 
         /// <summary>
         /// Drops the collection.
@@ -782,17 +777,8 @@ namespace Envoice.MongoRepository.Impl
         /// <summary>
         /// Initializes a new instance of the MongoRepositoryManager class.
         /// </summary>
-        /// <param name="connectionString">Connection string to use for connecting to MongoDB.</param>
-        /// <param name="collectionName">The name of the collection to use.</param>
-        public MongoRepositoryManager(string connectionString, string collectionName)
-            : base(connectionString, collectionName) { }
-
-        /// <summary>
-        /// Initializes a new instance of the MongoRepositoryManager class.
-        /// </summary>
-        /// <param name="database">The database instance</param>
-        /// <param name="collectionName">The name of the collection to use.</param>
-        public MongoRepositoryManager(IMongoDatabase database, string collectionName)
-            : base(database, collectionName) { }
+        /// <param name="config">The configuration.</param>
+        public MongoRepositoryManager(MongoRepositoryConfig config)
+            : base(config) { }
     }
 }

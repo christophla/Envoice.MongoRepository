@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Envoice.MongoRepository.Impl;
+using Envoice.MongoRepository;
 using Envoice.MongoRepository.IntegrationTests.Entities;
 using MongoDB.Driver;
 using Shouldly;
@@ -12,286 +12,342 @@ namespace Envoice.MongoRepository.IntegrationTests.Tests
     [Collection(Collections.Database)]
     public class RepositoryTests : TestsBase
     {
+        public RepositoryTests() : base()
+        {
+            var customerRepository = new MongoRepository<Customer>();
+            customerRepository.DeleteAll();
+        }
+
         [Fact]
         public void CanAddDocument()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
 
-            _customerRepository.Add(this.TestCustomers[0]);
+            customerRepository.Add(this.TestCustomers[0]);
             this.TestCustomers[0].Id.ShouldNotBeNullOrWhiteSpace();
+
+            customerRepository.Delete(this.TestCustomers[0]);
         }
 
         [Fact]
         public void CanAddMultipleDocuments()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
 
-            _customerRepository.Add(this.TestCustomers);
+            customerRepository.Add(this.TestCustomers);
             this.TestCustomers[0].Id.ShouldNotBeNullOrWhiteSpace();
             this.TestCustomers[1].Id.ShouldNotBeNullOrWhiteSpace();
+
+            customerRepository.Delete(this.TestCustomers);
         }
 
         [Fact]
         public async void CanAddDocumentAsync()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
 
-            await _customerRepository.AddAsync(this.TestCustomers[0]);
+            await customerRepository.AddAsync(this.TestCustomers[0]);
             this.TestCustomers[0].Id.ShouldNotBeNullOrWhiteSpace();
+
+            await customerRepository.DeleteAsync(this.TestCustomers[0]);
         }
 
         [Fact]
         public async void CanAddMultipleDocumentsAsync()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
 
-            await _customerRepository.AddAsync(this.TestCustomers);
+            await customerRepository.AddAsync(this.TestCustomers);
             this.TestCustomers[0].Id.ShouldNotBeNullOrWhiteSpace();
             this.TestCustomers[1].Id.ShouldNotBeNullOrWhiteSpace();
+
+            await customerRepository.DeleteAsync(this.TestCustomers);
         }
 
         [Fact]
         public void CanCountDocuments()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
 
-            _customerRepository.Add(this.TestCustomers);
+            customerRepository.Add(this.TestCustomers);
 
-            var count = _customerRepository.Count();
+            var count = customerRepository.Count();
             count.ShouldBe(this.TestCustomers.Count);
+
+            customerRepository.Delete(this.TestCustomers);
         }
 
         [Fact]
         public async void CanCountDocumentsAsync()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
 
-            await _customerRepository.AddAsync(this.TestCustomers);
+            await customerRepository.AddAsync(this.TestCustomers);
 
-            var count = await _customerRepository.CountAsync();
+            var count = await customerRepository.CountAsync();
             count.ShouldBe(this.TestCustomers.Count);
+
+            await customerRepository.DeleteAsync(this.TestCustomers);
         }
 
         [Fact]
         public void CanDeleteDocument()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
 
-            _customerRepository.Add(this.TestCustomers);
+            customerRepository.Add(this.TestCustomers);
 
-            _customerRepository.Delete(this.TestCustomers[0]);
-            _customerRepository.Count().ShouldBe(this.TestCustomers.Count - 1);
+            customerRepository.Delete(this.TestCustomers[0]);
+
+            var document = customerRepository.GetById(this.TestCustomers[0].Id);
+            document.ShouldBeNull();
+
+            customerRepository.Delete(this.TestCustomers);
         }
 
         [Fact]
         public async void CanDeleteDocumentAsync()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
 
-            await _customerRepository.AddAsync(this.TestCustomers);
+            await customerRepository.AddAsync(this.TestCustomers);
 
-            await _customerRepository.DeleteAsync(this.TestCustomers[0]);
-            _customerRepository.Count().ShouldBe(this.TestCustomers.Count - 1);
+            await customerRepository.DeleteAsync(this.TestCustomers[0]);
+
+            var document = await customerRepository.GetByIdAsync(this.TestCustomers[0].Id);
+            document.ShouldBeNull();
+
+            await customerRepository.DeleteAsync(this.TestCustomers);
         }
 
         [Fact]
         public void CanDeleteDocumentById()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
 
-            _customerRepository.Add(this.TestCustomers);
+            customerRepository.Add(this.TestCustomers);
 
-            _customerRepository.Delete(this.TestCustomers[0].Id);
-            _customerRepository.Count().ShouldBe(this.TestCustomers.Count - 1);
+            customerRepository.Delete(this.TestCustomers[0].Id);
+
+            var document = customerRepository.GetById(this.TestCustomers[0].Id);
+            document.ShouldBeNull();
+
+            customerRepository.Delete(this.TestCustomers);
         }
 
         [Fact]
         public async void CanDeleteDocumentByIdAsync()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
-            var count = _customerRepository.Count();
-            _customerRepository.Add(this.TestCustomers);
-            _customerRepository.Count().ShouldBe(this.TestCustomers.Count);
+            var customerRepository = new MongoRepository<Customer>();
 
-            await _customerRepository.DeleteAsync(this.TestCustomers[0].Id);
-            _customerRepository.Count().ShouldBe(this.TestCustomers.Count - 1);
+            customerRepository.Add(this.TestCustomers);
+            customerRepository.Count().ShouldBe(this.TestCustomers.Count);
+
+            await customerRepository.DeleteAsync(this.TestCustomers[0].Id);
+
+            var document = await customerRepository.GetByIdAsync(this.TestCustomers[0].Id);
+            document.ShouldBeNull();
+
+            await customerRepository.DeleteAsync(this.TestCustomers);
         }
 
         [Fact]
         public void CanDeleteDocumentByExpression()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
 
-            _customerRepository.Add(this.TestCustomers);
+            customerRepository.Add(this.TestCustomers);
 
-            _customerRepository.Delete(x => x.Id == this.TestCustomers[0].Id);
-            _customerRepository.Count().ShouldBe(this.TestCustomers.Count - 1);
+            customerRepository.Delete(x => x.Id == this.TestCustomers[0].Id);
+
+            var document = customerRepository.GetById(this.TestCustomers[0].Id);
+            document.ShouldBeNull();
+
+            customerRepository.Delete(this.TestCustomers);
         }
 
         [Fact]
         public async void CanDeleteDocumentByExpressionAsync()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
 
-            await _customerRepository.AddAsync(this.TestCustomers);
+            await customerRepository.AddAsync(this.TestCustomers);
 
-            await _customerRepository.DeleteAsync(x => x.Id == this.TestCustomers[0].Id);
-            _customerRepository.Count().ShouldBe(this.TestCustomers.Count - 1);
+            await customerRepository.DeleteAsync(x => x.Id == this.TestCustomers[0].Id);
+
+            var document = await customerRepository.GetByIdAsync(this.TestCustomers[0].Id);
+            document.ShouldBeNull();
+
+            await customerRepository.DeleteAsync(this.TestCustomers);
         }
 
         [Fact]
         public void CanDeleteAllDocuments()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
 
-            _customerRepository.Add(this.TestCustomers);
+            customerRepository.Add(this.TestCustomers);
 
-            _customerRepository.DeleteAll();
-            _customerRepository.Count().ShouldBe(0);
+            customerRepository.DeleteAll();
+            customerRepository.Count().ShouldBe(0);
         }
 
         [Fact]
         public async void CanDeleteAllDocumentsAsync()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
 
-            await _customerRepository.AddAsync(this.TestCustomers);
+            await customerRepository.AddAsync(this.TestCustomers);
 
-            await _customerRepository.DeleteAllAsync();
-            _customerRepository.Count().ShouldBe(0);
+            await customerRepository.DeleteAllAsync();
+            customerRepository.Count().ShouldBe(0);
         }
 
         [Fact]
         public void CanCheckIfDocumentExists()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
 
-            _customerRepository.Add(this.TestCustomers);
-            _customerRepository.Count().ShouldBe(this.TestCustomers.Count);
+            customerRepository.Add(this.TestCustomers);
+            customerRepository.Count().ShouldBe(this.TestCustomers.Count);
 
-            var exists = _customerRepository.Exists(x => x.Id == this.TestCustomers[0].Id);
+            var exists = customerRepository.Exists(x => x.Id == this.TestCustomers[0].Id);
             exists.ShouldBeTrue();
+
+            customerRepository.Delete(this.TestCustomers);
         }
 
         [Fact]
         public async void CanCheckIfDocumentExistsAsync()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
 
-            await _customerRepository.AddAsync(this.TestCustomers);
+            await customerRepository.AddAsync(this.TestCustomers);
 
-            var exists = await _customerRepository.ExistsAsync(x => x.Id == this.TestCustomers[0].Id);
+            var exists = await customerRepository.ExistsAsync(x => x.Id == this.TestCustomers[0].Id);
             exists.ShouldBeTrue();
+
+            await customerRepository.DeleteAsync(this.TestCustomers);
         }
 
         [Fact]
         public void CanGetSingleDocumentById()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
 
-            _customerRepository.Add(this.TestCustomers);
+            customerRepository.Add(this.TestCustomers);
 
-            var document = _customerRepository.GetById(this.TestCustomers[0].Id);
+            var document = customerRepository.GetById(this.TestCustomers[0].Id);
             document.ShouldNotBeNull();
             document.Id.ShouldBe(this.TestCustomers[0].Id);
+
+            customerRepository.Delete(this.TestCustomers);
         }
 
         [Fact]
         public async void CanGetSingleDocumentByIdAsync()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
 
-            _customerRepository.Add(this.TestCustomers);
-            _customerRepository.Count().ShouldBe(this.TestCustomers.Count);
+            customerRepository.Add(this.TestCustomers);
+            customerRepository.Count().ShouldBe(this.TestCustomers.Count);
 
-            var document = await _customerRepository.GetByIdAsync(this.TestCustomers[0].Id);
+            var document = await customerRepository.GetByIdAsync(this.TestCustomers[0].Id);
             document.ShouldNotBeNull();
             document.Id.ShouldBe(this.TestCustomers[0].Id);
+
+            await customerRepository.DeleteAsync(this.TestCustomers);
         }
 
         [Fact]
         public void CanUpdateDocument()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
 
-            _customerRepository.Add(this.TestCustomers);
+            customerRepository.Add(this.TestCustomers);
 
             this.TestCustomers[0].LastName = "Updated LastName";
-            _customerRepository.Update(this.TestCustomers[0]);
+            customerRepository.Update(this.TestCustomers[0]);
 
-            var document = _customerRepository.GetById(this.TestCustomers[0].Id);
+            var document = customerRepository.GetById(this.TestCustomers[0].Id);
             document.ShouldNotBeNull();
             document.Id.ShouldBe(this.TestCustomers[0].Id);
             document.LastName.ShouldBe("Updated LastName");
+
+            customerRepository.Delete(this.TestCustomers);
         }
 
         [Fact]
         public async void CanUpdateDocumentAsync()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
 
-            await _customerRepository.AddAsync(this.TestCustomers);
+            await customerRepository.AddAsync(this.TestCustomers);
 
             this.TestCustomers[0].LastName = "Updated LastName";
-            await _customerRepository.UpdateAsync(this.TestCustomers[0]);
+            await customerRepository.UpdateAsync(this.TestCustomers[0]);
 
-            var document = await _customerRepository.GetByIdAsync(this.TestCustomers[0].Id);
+            var document = await customerRepository.GetByIdAsync(this.TestCustomers[0].Id);
             document.ShouldNotBeNull();
             document.Id.ShouldBe(this.TestCustomers[0].Id);
             document.LastName.ShouldBe("Updated LastName");
+
+            await customerRepository.DeleteAsync(this.TestCustomers);
         }
 
         [Fact]
         public void CanUpdateMultipleDocuments()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
 
-            _customerRepository.Add(this.TestCustomers);
+            customerRepository.Add(this.TestCustomers);
 
             this.TestCustomers[0].LastName = "Updated LastName 1";
             this.TestCustomers[1].LastName = "Updated LastName 2";
-            _customerRepository.Update(this.TestCustomers);
+            customerRepository.Update(this.TestCustomers);
 
-            var document1 = _customerRepository.GetById(this.TestCustomers[0].Id);
+            var document1 = customerRepository.GetById(this.TestCustomers[0].Id);
             document1.ShouldNotBeNull();
             document1.Id.ShouldBe(this.TestCustomers[0].Id);
             document1.LastName.ShouldBe("Updated LastName 1");
 
-
-            var document2 = _customerRepository.GetById(this.TestCustomers[1].Id);
+            var document2 = customerRepository.GetById(this.TestCustomers[1].Id);
             document2.ShouldNotBeNull();
             document2.Id.ShouldBe(this.TestCustomers[1].Id);
             document2.LastName.ShouldBe("Updated LastName 2");
+
+            customerRepository.Delete(this.TestCustomers);
         }
 
         [Fact]
         public async void CanUpdateMultipleDocumentsAsync()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
 
-            await _customerRepository.AddAsync(this.TestCustomers);
+            await customerRepository.AddAsync(this.TestCustomers);
 
             this.TestCustomers[0].LastName = "Updated LastName 1";
             this.TestCustomers[1].LastName = "Updated LastName 2";
-            await _customerRepository.UpdateAsync(this.TestCustomers);
+            await customerRepository.UpdateAsync(this.TestCustomers);
 
-            var document1 = await _customerRepository.GetByIdAsync(this.TestCustomers[0].Id);
+            var document1 = await customerRepository.GetByIdAsync(this.TestCustomers[0].Id);
             document1.ShouldNotBeNull();
             document1.Id.ShouldBe(this.TestCustomers[0].Id);
             document1.LastName.ShouldBe("Updated LastName 1");
 
-
-            var document2 = await _customerRepository.GetByIdAsync(this.TestCustomers[1].Id);
+            var document2 = await customerRepository.GetByIdAsync(this.TestCustomers[1].Id);
             document2.ShouldNotBeNull();
             document2.Id.ShouldBe(this.TestCustomers[1].Id);
             document2.LastName.ShouldBe("Updated LastName 2");
+
+            await customerRepository.DeleteAsync(this.TestCustomers);
         }
 
         [Fact]
         public void AddAndUpdateTest()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
-            IRepositoryManager<Customer> _customerManager = new MongoRepositoryManager<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
+            var customerManager = new MongoRepositoryManager<Customer>();
 
             //_customerManager.Exists.ShouldBeFalse();
 
@@ -304,18 +360,18 @@ namespace Envoice.MongoRepository.IntegrationTests.Tests
             {
                 Address1 = "North kingdom 15 west",
                 Address2 = "1 north way",
-                PostCode = "40990",
                 City = "George Town",
-                Country = "Alaska"
+                Country = "Alaska",
+                PostCode = "40990"
             };
 
-            _customerRepository.Add(customer);
+            customerRepository.Add(customer);
 
-            _customerManager.Exists.ShouldBeTrue();
+            customerManager.Exists.ShouldBeTrue();
             customer.Id.ShouldNotBeNullOrWhiteSpace();
 
             // fetch it back
-            var alreadyAddedCustomer = _customerRepository.Where(c => c.FirstName == "Bob").Single();
+            var alreadyAddedCustomer = customerRepository.Where(c => c.FirstName == "Bob").Single();
 
             alreadyAddedCustomer.ShouldNotBeNull();
             customer.FirstName.ShouldBe(alreadyAddedCustomer.FirstName);
@@ -324,22 +380,29 @@ namespace Envoice.MongoRepository.IntegrationTests.Tests
             alreadyAddedCustomer.Phone = "10110111";
             alreadyAddedCustomer.Email = new CustomerEmail("dil.bob@fastmail.org");
 
-            _customerRepository.Update(alreadyAddedCustomer);
+            customerRepository.Update(alreadyAddedCustomer);
 
             // fetch by id now
-            var updatedCustomer = _customerRepository.GetById(customer.Id);
+            var updatedCustomer = customerRepository.GetById(customer.Id);
 
             updatedCustomer.ShouldNotBeNull();
             alreadyAddedCustomer.Phone.ShouldBe(updatedCustomer.Phone);
             alreadyAddedCustomer.Email.Value.ShouldBe(updatedCustomer.Email.Value);
-            _customerRepository.Exists(c => c.HomeAddress.Country == "Alaska").ShouldBeTrue();
+            customerRepository.Exists(c => c.HomeAddress.Country == "Alaska").ShouldBeTrue();
+
+            customerRepository.Delete(updatedCustomer);
+
+            var exists = customerRepository.GetById(updatedCustomer.Id);
+            exists.ShouldBeNull();
+
+            customerRepository.DeleteAll();
         }
 
         [Fact]
         public void ComplexEntityTest()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
-            IRepository<Product> _productRepo = new MongoRepository<Product>();
+            var customerRepository = new MongoRepository<Customer>();
+            var productRepository = new MongoRepository<Product>();
 
             var customer = new Customer();
             customer.FirstName = "Erik";
@@ -350,17 +413,17 @@ namespace Envoice.MongoRepository.IntegrationTests.Tests
             {
                 Address1 = "Main bulevard",
                 Address2 = "1 west way",
-                PostCode = "89560",
                 City = "Tempare",
-                Country = "Arizona"
+                Country = "Arizona",
+                PostCode = "89560"
             };
 
             var order = new Order();
             order.PurchaseDate = DateTime.Now.AddDays(-2);
             var orderItems = new List<OrderItem>();
 
-            var shampoo = _productRepo.Add(new Product() { Name = "Palmolive Shampoo", Price = 5 });
-            var paste = _productRepo.Add(new Product() { Name = "Mcleans Paste", Price = 4 });
+            var shampoo = productRepository.Add(new Product() { Name = "Palmolive Shampoo", Price = 5 });
+            var paste = productRepository.Add(new Product() { Name = "Mcleans Paste", Price = 4 });
 
 
             var item1 = new OrderItem { Product = shampoo, Quantity = 1 };
@@ -376,24 +439,30 @@ namespace Envoice.MongoRepository.IntegrationTests.Tests
                 order
             };
 
-            _customerRepository.Add(customer);
+            customerRepository.Add(customer);
 
             customer.Id.ShouldNotBeNull();
             customer.Orders[0].Items[0].Product.Id.ShouldNotBeNullOrWhiteSpace();
 
             // get the orders
-            var theOrders = _customerRepository.Where(c => c.Id == customer.Id).Select(c => c.Orders).ToList();
-            var theOrderItems = theOrders[0].Select(o => o.Items);
+            var theCustomer = customerRepository.Where(c => c.Id == customer.Id).SingleOrDefault();
 
+            var theOrders = customerRepository.Where(c => c.Id == customer.Id).Select(c => c.Orders).ToList();
             theOrders.ShouldNotBeNull();
+            theOrders.ShouldNotBeEmpty();
+
+            var theOrderItems = theOrders[0].Select(o => o.Items);
             theOrderItems.ShouldNotBeNull();
+
+            customerRepository.DeleteAll();
+            productRepository.DeleteAll();
         }
 
 
         [Fact]
         public void BatchTest()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>();
+            var customerRepository = new MongoRepository<Customer>();
 
             var custlist = new List<Customer>(new Customer[] {
                 new Customer() { FirstName = "Customer A" },
@@ -406,9 +475,9 @@ namespace Envoice.MongoRepository.IntegrationTests.Tests
             });
 
             //Insert batch
-            _customerRepository.Add(custlist);
+            customerRepository.Add(custlist);
 
-            var count = _customerRepository.Count();
+            var count = customerRepository.Count();
             count.ShouldBe(7);
             foreach (Customer c in custlist)
                 c.Id.ShouldNotBe(new string('0', 24));
@@ -416,42 +485,44 @@ namespace Envoice.MongoRepository.IntegrationTests.Tests
             //Update batch
             foreach (Customer c in custlist)
                 c.LastName = c.FirstName;
-            _customerRepository.Update(custlist);
+            customerRepository.Update(custlist);
 
-            foreach (Customer c in _customerRepository)
+            foreach (Customer c in customerRepository)
                 c.FirstName.ShouldBe(c.LastName);
 
             //Delete by criteria
-            _customerRepository.Delete(f => f.FirstName.StartsWith("Client"));
+            customerRepository.Delete(f => f.FirstName.StartsWith("Client"));
 
-            count = _customerRepository.Count();
+            count = customerRepository.Count();
             count.ShouldBe(4);
 
             //Delete specific object
-            _customerRepository.Delete(custlist[0]);
+            customerRepository.Delete(custlist[0]);
 
             //Test AsQueryable
-            var selectedcustomers = from cust in _customerRepository
+            var selectedcustomers = from cust in customerRepository
                                     where cust.LastName.EndsWith("C") || cust.LastName.EndsWith("G")
                                     select cust;
 
             selectedcustomers.ToList().Count.ShouldBe(2);
 
-            count = _customerRepository.Count();
+            count = customerRepository.Count();
             count.ShouldBe(3);
 
             //Drop entire repo
-            new MongoRepositoryManager<Customer>().Drop();
-
-            count = _customerRepository.Count();
+            customerRepository.DeleteAll();
+            count = customerRepository.Count();
             count.ShouldBe(0);
         }
 
         [Fact]
         public void CollectionNamesTest()
         {
+            // animal
             var a = new MongoRepository<Animal>();
             var am = new MongoRepositoryManager<Animal>();
+            a.DeleteAll();
+
             var va = new Dog();
             am.Exists.ShouldBeFalse();
             a.Update(va);
@@ -460,8 +531,11 @@ namespace Envoice.MongoRepository.IntegrationTests.Tests
             am.Name.ShouldBe("AnimalsTest");
             a.CollectionName.ShouldBe("AnimalsTest");
 
+            // cat
             var cl = new MongoRepository<CatLike>();
             var clm = new MongoRepositoryManager<CatLike>();
+            cl.DeleteAll();
+
             var vcl = new Lion();
             clm.Exists.ShouldBeFalse();
             cl.Update(vcl);
@@ -470,8 +544,11 @@ namespace Envoice.MongoRepository.IntegrationTests.Tests
             clm.Name.ShouldBe("Catlikes");
             cl.CollectionName.ShouldBe("Catlikes");
 
+            // bird
             var b = new MongoRepository<Bird>();
             var bm = new MongoRepositoryManager<Bird>();
+            b.DeleteAll();
+
             var vb = new Bird();
             bm.Exists.ShouldBeFalse();
             b.Update(vb);
@@ -480,8 +557,11 @@ namespace Envoice.MongoRepository.IntegrationTests.Tests
             bm.Name.ShouldBe("Birds");
             b.CollectionName.ShouldBe("Birds");
 
+            // lion
             var l = new MongoRepository<Lion>();
             var lm = new MongoRepositoryManager<Lion>();
+            l.DeleteAll();
+
             var vl = new Lion();
             //Assert.IsFalse(lm.Exists);   //Should already exist (created by cl)
             l.Update(vl);
@@ -490,8 +570,11 @@ namespace Envoice.MongoRepository.IntegrationTests.Tests
             lm.Name.ShouldBe("Catlikes");
             l.CollectionName.ShouldBe("Catlikes");
 
+            // dog
             var d = new MongoRepository<Dog>();
             var dm = new MongoRepositoryManager<Dog>();
+            d.DeleteAll();
+
             var vd = new Dog();
             //Assert.IsFalse(dm.Exists);
             d.Update(vd);
@@ -500,18 +583,23 @@ namespace Envoice.MongoRepository.IntegrationTests.Tests
             dm.Name.ShouldBe("AnimalsTest");
             d.CollectionName.ShouldBe("AnimalsTest");
 
+            // bird
             var m = new MongoRepository<Bird>();
             var mm = new MongoRepositoryManager<Bird>();
+            m.DeleteAll();
+
             var vm = new Macaw();
-            //Assert.IsFalse(mm.Exists);
             m.Update(vm);
             mm.Exists.ShouldBeTrue();
             m.GetById(vm.Id).ShouldBeOfType(typeof(Macaw));
             mm.Name.ShouldBe("Birds");
             m.CollectionName.ShouldBe("Birds");
 
+            // whale
             var w = new MongoRepository<Whale>();
             var wm = new MongoRepositoryManager<Whale>();
+            w.DeleteAll();
+
             var vw = new Whale();
             wm.Exists.ShouldBeFalse();
             w.Update(vw);
@@ -519,6 +607,15 @@ namespace Envoice.MongoRepository.IntegrationTests.Tests
             w.GetById(vw.Id).ShouldBeOfType(typeof(Whale));
             wm.Name.ShouldBe("Whale");
             w.CollectionName.ShouldBe("Whale");
+
+            // cleanup
+            am.Drop();
+            clm.Drop();
+            bm.Drop();
+            lm.Drop();
+            dm.Drop();
+            mm.Drop();
+            wm.Drop();
         }
 
         [Fact]
@@ -526,6 +623,7 @@ namespace Envoice.MongoRepository.IntegrationTests.Tests
         {
             var customIdRepository = new MongoRepository<CustomIDEntity>();
             var customIdManager = new MongoRepositoryManager<CustomIDEntity>();
+            customIdRepository.DeleteAll();
 
             customIdRepository.Add(new CustomIDEntity() { Id = "aaa" });
 
@@ -538,6 +636,7 @@ namespace Envoice.MongoRepository.IntegrationTests.Tests
 
             var y = new MongoRepository<CustomIDEntityCustomCollection>();
             var ym = new MongoRepositoryManager<CustomIDEntityCustomCollection>();
+            y.DeleteAll();
 
             y.Add(new CustomIDEntityCustomCollection() { Id = "xyz" });
 
@@ -548,33 +647,42 @@ namespace Envoice.MongoRepository.IntegrationTests.Tests
 
             y.Delete("xyz");
             y.Count().ShouldBe(0);
+
+            customIdRepository.DeleteAll();
         }
 
         [Fact]
         public void CustomIDTypeTest()
         {
-            var xint = new MongoRepository<IntCustomer, int>();
-            xint.Add(new IntCustomer() { Id = 1, Name = "Test A" });
-            xint.Add(new IntCustomer() { Id = 2, Name = "Test B" });
+            var intRepository = new MongoRepository<IntCustomer, int>();
+            intRepository.DeleteAll();
 
-            var yint = xint.GetById(2);
+            intRepository.Add(new IntCustomer() { Id = 1, Name = "Test A" });
+            intRepository.Add(new IntCustomer() { Id = 2, Name = "Test B" });
+
+            var yint = intRepository.GetById(2);
             yint.Name.ShouldBe("Test B");
 
-            xint.Delete(2);
-            xint.Count().ShouldBe(1);
+            intRepository.Delete(2);
+            intRepository.Count().ShouldBe(1);
+
+            intRepository.DeleteAll();
         }
 
         [Fact]
         public void OverrideCollectionName()
         {
-            IRepository<Customer> _customerRepository = new MongoRepository<Customer>(Configuration.Database.ConnectionString, "TestCustomers123");
-            _customerRepository.Add(new Customer() { FirstName = "Test" });
-            _customerRepository.Single().FirstName.Equals("Test").ShouldBeTrue();
-            _customerRepository.Collection.CollectionNamespace.CollectionName.ShouldBe("TestCustomers123");
-            ((MongoRepository<Customer>)_customerRepository).CollectionName.ShouldBe("TestCustomers123");
+            // var config = new MongoRepositoryConfig() {
 
-            IRepositoryManager<Customer> _curstomerRepoManager = new MongoRepositoryManager<Customer>(Configuration.Database.ConnectionString, "TestCustomers123");
-            _curstomerRepoManager.Name.ShouldBe("TestCustomers123");
+            // };
+            // IRepository<Customer> customerRepository = new MongoRepository<Customer>(Configuration.Database.ConnectionString, "TestCustomers123");
+            // customerRepository.Add(new Customer() { FirstName = "Test" });
+            // customerRepository.Single().FirstName.Equals("Test").ShouldBeTrue();
+            // customerRepository.Collection.CollectionNamespace.CollectionName.ShouldBe("TestCustomers123");
+            // ((MongoRepository<Customer>)customerRepository).CollectionName.ShouldBe("TestCustomers123");
+
+            // IRepositoryManager<Customer> _curstomerRepoManager = new MongoRepositoryManager<Customer>(Configuration.Database.ConnectionString, "TestCustomers123");
+            // _curstomerRepoManager.Name.ShouldBe("TestCustomers123");
         }
 
         #region [ ResolveCollectionNameFromChildClass ]
@@ -583,6 +691,8 @@ namespace Envoice.MongoRepository.IntegrationTests.Tests
             public string Id { get; set; }
 
             public DateTime CreatedOn => DateTime.UtcNow;
+
+            public string ObjectTypeId { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         }
 
         public abstract class BaseA : BaseItem
@@ -617,16 +727,18 @@ namespace Envoice.MongoRepository.IntegrationTests.Tests
         [Fact]
         public void CanCreateHierarchicalCollection()
         {
-            var repo = new MongoRepository<ClassA>() {
+            var repository = new MongoRepository<ClassA>() {
                 new ClassB() { Prop1 = "A", Prop2 = "B" } ,
                 new ClassC() { Prop1 = "A", Prop3 = "C" }
             };
 
-            repo.Count().ShouldBe(2);
+            repository.Count().ShouldBe(2);
 
-            repo.OfType<ClassA>().Count().ShouldBe(2);
-            repo.OfType<ClassB>().Count().ShouldBe(1);
-            repo.OfType<ClassC>().Count().ShouldBe(1);
+            //repo.OfType<ClassA>().Count().ShouldBe(2);
+            repository.OfType<ClassB>().Count().ShouldBe(1);
+            repository.OfType<ClassC>().Count().ShouldBe(1);
+
+            repository.DeleteAll();
         }
         #endregion
     }

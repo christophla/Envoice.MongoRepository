@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Envoice.MongoRepository.Impl
+namespace Envoice.MongoRepository
 {
     /// <summary>
     /// Represents collection system flags.

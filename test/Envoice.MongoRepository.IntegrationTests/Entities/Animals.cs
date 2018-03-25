@@ -1,4 +1,4 @@
-using Envoice.MongoRepository.Impl;
+using Envoice.MongoRepository;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Envoice.MongoRepository.IntegrationTests.Entities

@@ -1,6 +1,6 @@
 using System;
 
-namespace Envoice.MongoRepository.Impl
+namespace Envoice.MongoRepository
 {
     /// <summary>
     /// Attribute used to annotate Enities with to override mongo collection name. By default, when this attribute

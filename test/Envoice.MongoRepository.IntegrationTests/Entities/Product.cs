@@ -1,4 +1,4 @@
-using Envoice.MongoRepository.Impl;
+using Envoice.MongoRepository;
 
 namespace Envoice.MongoRepository.IntegrationTests.Entities
 {
