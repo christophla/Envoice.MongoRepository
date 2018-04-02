@@ -17,7 +17,7 @@ namespace Envoice.MongoRepository
         /// <summary>
         /// Applies a virtual collection type name for this entity.
         /// </summary>
-        /// <param name="name">The virtual collection type name</param>
+        /// <param name="typeName">The virtual collection type name</param>
         public VirtualCollectionTypeName(string typeName)
         {
             Condition.Requires(typeName, "typeName").IsNotNullOrWhiteSpace();

@@ -56,8 +56,7 @@ namespace Envoice.MongoRepository
         /// <summary>
         /// Initializes a new instance of the MongoRepository class.
         /// </summary>
-        /// <param name="connectionString">Connectionstring to use for connecting to MongoDB.</param>
-        /// /// <param name="config">The configuration.</param>
+        /// <param name="config">The configuration.</param>
         public MongoRepository(MongoRepositoryConfig config)
         {
             Condition.Requires(config, "config").IsNotNull();
@@ -66,6 +65,9 @@ namespace Envoice.MongoRepository
             this.Config = config;
         }
 
+        /// <summary>
+        /// The mongo collection
+        /// </summary>
         public IMongoCollection<T> Collection
         {
             get { return this.collection; }
@@ -193,7 +195,7 @@ namespace Envoice.MongoRepository
         /// <summary>
         /// Deletes the given entities.
         /// </summary>
-        /// <param name="entity">The entities to delete.</param>
+        /// <param name="entities">The entities to delete.</param>
         /// <param name="cancellationToken">Optional threading cancellation token</param>
         public virtual void Delete(IEnumerable<T> entities, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -239,7 +241,7 @@ namespace Envoice.MongoRepository
         /// <summary>
         /// Deletes the given entities.
         /// </summary>
-        /// <param name="entity">The entities to delete.</param>
+        /// <param name="entities">The entities to delete.</param>
         /// <param name="cancellationToken">Optional threading cancellation token</param>
         public async virtual Task DeleteAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -285,6 +287,7 @@ namespace Envoice.MongoRepository
         /// Checks if the entity exists for given predicate.
         /// </summary>
         /// <param name="predicate">The expression.</param>
+        /// <param name="cancellationToken">Optional threading cancellation token</param>
         /// <returns>True when an entity matching the predicate exists, false otherwise.</returns>
         public async virtual Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -308,6 +311,7 @@ namespace Envoice.MongoRepository
         /// </summary>
         /// <param name="id">The Id of the entity to retrieve.</param>
         /// <param name="options">Optional find options</param>
+        /// <param name="cancellationToken">Optional threading cancellation token</param>
         /// <returns>The Entity T.</returns>
         public async virtual Task<T> GetByIdAsync(TKey id, FindOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -452,29 +456,6 @@ namespace Envoice.MongoRepository
         /// <summary>
         /// Initializes a new instance of the MongoRepository class.
         /// </summary>
-        /// <param name="database">The database isntance.</param>
-        /// <param name="collectionName">The name of the collection to use.</param>
-        // public MongoRepository(IMongoDatabase database, string collectionName)
-        //     : base(database, collectionName) { }
-
-        /// <summary>
-        /// Initializes a new instance of the MongoRepository class.
-        /// </summary>
-        /// <param name="url">Url to use for connecting to MongoDB.</param>
-        // public MongoRepository(MongoUrl url)
-        //     : base(url) { }
-
-        /// <summary>
-        /// Initializes a new instance of the MongoRepository class.
-        /// </summary>
-        /// <param name="url">Url to use for connecting to MongoDB.</param>
-        /// <param name="collectionName">The name of the collection to use.</param>
-        // public MongoRepository(MongoUrl url, string collectionName)
-        //     : base(url, collectionName) { }
-
-        /// <summary>
-        /// Initializes a new instance of the MongoRepository class.
-        /// </summary>
         /// <param name="connectionString">Connectionstring to use for connecting to MongoDB.</param>
         public MongoRepository(string connectionString)
             : base(connectionString) { }
@@ -482,7 +463,6 @@ namespace Envoice.MongoRepository
         /// <summary>
         /// Initializes a new instance of the MongoRepository class.
         /// </summary>
-        /// <param name="connectionString">Connectionstring to use for connecting to MongoDB.</param>
         /// <param name="config">The configuration.</param>
         public MongoRepository(MongoRepositoryConfig config)
             : base(config) { }

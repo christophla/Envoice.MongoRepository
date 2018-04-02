@@ -3,6 +3,9 @@ using System.ComponentModel;
 
 namespace Envoice.MongoRepository.Helpers
 {
+    /// <summary>
+    /// Conversion utilities
+    /// </summary>
     public static class ConversionUtil
     {
         /// <summary>

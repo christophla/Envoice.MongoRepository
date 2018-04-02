@@ -36,6 +36,10 @@ namespace Envoice.MongoRepository
         /// </summary>
         public string ConnectionString { get; }
 
+        /// <summary>
+        /// Initializes a new mongo repository configuration
+        /// </summary>
+        /// <param name="connectionString">The connection string</param>
         public MongoRepositoryConfig(string connectionString)
         {
             Condition.Requires(connectionString, "connectionString").IsNotNullOrWhiteSpace();
@@ -89,6 +93,7 @@ namespace Envoice.MongoRepository
         /// Determines the collectionname for T and assures it is not empty
         /// </summary>
         /// <typeparam name="T">The type to determine the collectionname for.</typeparam>
+        /// <typeparam name="TKey">The type for the document id.</typeparam>
         /// <returns>Returns the collectionname for T.</returns>
         private string GetCollectionName<T, TKey>()
             where T : IEntity<TKey>

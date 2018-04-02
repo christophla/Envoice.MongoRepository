@@ -74,7 +74,6 @@ namespace Envoice.MongoRepository
         /// <summary>
         /// Initializes a new instance of the MongoRepositoryManager class.
         /// </summary>
-        /// <param name="connectionString">Connection string to use for connecting to MongoDB.</param>
         /// <param name="config">The configuration.</param>
         public MongoRepositoryManager(MongoRepositoryConfig config)
         {
@@ -82,19 +81,6 @@ namespace Envoice.MongoRepository
 
             this.collection = config.GetCollection<T, TKey>();
         }
-
-        /// <summary>
-        /// Initializes a new instance of the MongoRepositoryManager class.
-        /// </summary>
-        /// <param name="database">The database instance</param>
-        /// <param name="collectionName">The name of the collection to use.</param>
-        // public MongoRepositoryManager(IMongoDatabase database, string collectionName)
-        // {
-        //     Condition.Requires(database, "database").IsNotNull();
-        //     Condition.Requires(collectionName, "collectionName").IsNotNullOrWhiteSpace();
-
-        //     this.collection = database.GetCollection<T>(collectionName);
-        // }
 
         /// <summary>
         /// Drops the collection.

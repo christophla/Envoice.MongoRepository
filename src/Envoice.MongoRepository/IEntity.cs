@@ -22,6 +22,9 @@ namespace Envoice.MongoRepository
         /// </summary>
         DateTime CreatedOn { get; }
 
+        /// <summary>
+        /// The object type id (virtual collection)
+        /// </summary>
         string ObjectTypeId { get; set; }
     }
 

@@ -13,6 +13,9 @@ namespace Envoice.MongoRepository
     [BsonIgnoreExtraElements(Inherited = true)]
     public abstract class Entity : IEntity<string>
     {
+        /// <summary>
+        /// Internal constructor
+        /// </summary>
         protected Entity()
         {
             Id = ObjectId.GenerateNewId().ToString();
