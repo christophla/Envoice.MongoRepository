@@ -180,8 +180,8 @@ Function IntegrationTests () {
 
     Get-ChildItem -Directory -Filter "*.IntegrationTests*" |
         ForEach-Object {
-        Set-Location $_.FullName # or whatever
-        dotnet test
+        Set-Location $_.FullName
+        dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
         Set-Location ..
     }
 
@@ -282,13 +282,12 @@ elseif ($Compose) {
 elseif ($ComposeForDebug) {
     $env:REMOTE_DEBUGGING = "enabled"
     BuildProject
-    BuildImage
+    #BuildImage
     Compose
 }
 elseif ($IntegrationTests) {
-    BuildProject
-    BuildImage
-    Compose
+    #BuildProject
+    #Compose
     IntegrationTests
 }
 elseif ($NuGetPublish) {
