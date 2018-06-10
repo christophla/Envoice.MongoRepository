@@ -1,4 +1,9 @@
 language: csharp
-solution: Envoice.MongoRepository.sln
 mono: none
 dotnet: 2.1.300
+script:
+  - chmod +x ./scripts/project-tasks.sh
+  - ./scripts/project-tasks.sh build-ci
+sudo: required
+services:
+  - docker
