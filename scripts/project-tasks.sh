@@ -144,6 +144,7 @@ integrationTests () {
         fi
     done
 
+    cd $ROOT_DIR
 }
 
 
@@ -256,6 +257,7 @@ unitTests () {
         fi
     done
 
+    cd $ROOT_DIR
 }
 
 
