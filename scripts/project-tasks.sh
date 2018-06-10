@@ -154,13 +154,14 @@ integrationTests () {
 nugetPublish () {
 
     echo -e "${GREEN}"
-    echo -en "++++++++++++++++++++++++++++++++++++++++++++++++"
-    echo -en "+ Deploying nuget packages to nuget feed        "
-    echo -en "++++++++++++++++++++++++++++++++++++++++++++++++"
+    echo -e "++++++++++++++++++++++++++++++++++++++++++++++++"
+    echo -e "+ Deploying nuget packages to nuget feed        "
+    echo -e "+ ${branch}                                     "
+    echo -e "++++++++++++++++++++++++++++++++++++++++++++++++"
     echo -e "${RESTORE}"
 
     if [ -z "$nugetKey" ]; then
-        echo "${RED}You must set the NUGET_KEY_ENVOICE environment variable${RESTORE}"
+        echo "${RED}You must set the MYGET_KEY_ENVOICE environment variable${RESTORE}"
         exit 1
     fi
 
