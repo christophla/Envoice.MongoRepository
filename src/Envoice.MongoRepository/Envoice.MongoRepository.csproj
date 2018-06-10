@@ -6,7 +6,7 @@
         <Company>Envoice</Company>
         <Copyright>MIT</Copyright>
         <Description>Mongo Repository library supporting virtual collections</Description>
-        <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <IncludeSource>true</IncludeSource>
         <IncludeSymbols>true</IncludeSymbols>
         <PackageId>Envoice.MongoRepository</PackageId>
@@ -17,12 +17,12 @@
         <VersionSuffix>$(VersionSuffix)</VersionSuffix>
     </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Envoice.Conditions" Version="1.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.0" />
-    <PackageReference Include="MongoDB.Driver" Version="2.6.1" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Envoice.Conditions" Version="1.0.2" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.1.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.0" />
+        <PackageReference Include="MongoDB.Driver" Version="2.6.1" />
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
+    </ItemGroup>
 
 </Project>
