@@ -137,7 +137,7 @@ integrationTests () {
         dir=${dir%*/}
         echo -e ${dir##*/}
         cd $dir
-        dotnet test -c $ENVIRONMENT
+        dotnet test -c $ENVIRONMENT /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
         rtn=$?
         if [ "$rtn" != "0" ]; then
         exit $rtn
@@ -251,7 +251,7 @@ unitTests () {
         dir=${dir%*/}
         echo -e ${dir##*/}
         cd $dir
-        dotnet test -c $ENVIRONMENT
+        dotnet test -c $ENVIRONMENT /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
         rtn=$?
         if [ "$rtn" != "0" ]; then
         exit $rtn
@@ -335,7 +335,6 @@ else
             compose
             ;;
         "integrationTests")
-            compose
             integrationTests
             ;;
         "nugetPublish")

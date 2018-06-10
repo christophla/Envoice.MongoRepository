@@ -1,6 +1,6 @@
 ### Envoice 
 
-# MongoRepository [![Build status](https://ci.appveyor.com/api/projects/status/09c4fnv2ov54vpwm?svg=true)](https://ci.appveyor.com/project/christophla/conditions)
+# MongoRepository [![Build Status](https://travis-ci.org/christophla/Envoice.MongoRepository.svg?branch=master)](https://travis-ci.org/christophla/Envoice.MongoRepository)
 
 MongoDB repository abstraction library with virtual collection support.
 
