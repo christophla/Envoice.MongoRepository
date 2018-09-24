@@ -13,7 +13,7 @@
         <PackageTags>dotnetcore, mongodb</PackageTags>
         <ProjectUrl>https://github.com/christophla/Envoice.MongoRepository</ProjectUrl>
         <RepositoryUrl>https://github.com/christophla/Envoice.MongoRepository</RepositoryUrl>
-        <VersionPrefix>1.0.0</VersionPrefix>
+        <VersionPrefix>1.1.0</VersionPrefix>
         <VersionSuffix>$(VersionSuffix)</VersionSuffix>
     </PropertyGroup>
 
