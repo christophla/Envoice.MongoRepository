@@ -7,7 +7,7 @@ services:
     container_name: envoice-mongorepository
     command: mongod --smallfiles --bind_ip_all
     ports:
-      - "6055:27017"
+      - "27017:27017"
     networks:
       - dev-network
     tty: true
