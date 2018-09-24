@@ -62,12 +62,7 @@ namespace Envoice.MongoRepository
         public IMongoCollection<T> GetCollection<T, TKey>() where T : IEntity<TKey>
         {
             var collectionName = GetCollectionName<T, TKey>();
-            var collection = GetDatabaseFromUrl(new MongoUrl(this.ConnectionString)).GetCollection<T>(collectionName);
-
-            if (this.VirtualCollectionEnabled)
-                collection = new VirtualCollection<T, TKey>(collection, this);
-
-            return collection;
+            return GetDatabaseFromUrl(new MongoUrl(this.ConnectionString)).GetCollection<T>(collectionName);
         }
 
         #region [ Private Methods ]
@@ -135,26 +130,11 @@ namespace Envoice.MongoRepository
 
             // Check to see if the object (inherited from Entity) has a CollectionName attribute
             var collectionNameAttribute = Attribute.GetCustomAttribute(typeof(T), typeof(CollectionName));
-            var virtualCollectionNameAttribute = Attribute.GetCustomAttribute(typeof(T), typeof(VirtualCollectionName));
-
-            // Cannot define both
-            if (collectionNameAttribute != null && virtualCollectionNameAttribute != null)
-            {
-                throw new Exception($"CollectionName and VirtualCollectionName cannot both be defined on {typeof(T).Name}");
-            }
 
             // Parse collection name
             if (collectionNameAttribute != null)
             {
                 collectionName = ((CollectionName)collectionNameAttribute).Name;
-            }
-            else if (this.VirtualCollectionEnabled && virtualCollectionNameAttribute != null)
-            {
-                collectionName = ((VirtualCollectionName)virtualCollectionNameAttribute).Name;
-            }
-            else if (this.VirtualCollectionEnabled && this.HasVirtualCollectionDefault)
-            {
-                collectionName = this.VirtualCollectionDefault;
             }
             else
             {
@@ -175,22 +155,11 @@ namespace Envoice.MongoRepository
 
             // Check to see if the object (inherited from Entity) has a CollectionName attribute
             var collectionNameAttribute = Attribute.GetCustomAttribute(entityType, typeof(CollectionName));
-            var virtualCollectionNameAttribute = Attribute.GetCustomAttribute(entityType, typeof(VirtualCollectionName));
-
-            // Cannot define both
-            if (collectionNameAttribute != null && virtualCollectionNameAttribute != null)
-            {
-                throw new Exception($"CollectionName and VirtualCollectionName cannot both be defined on {entityType.Name}");
-            }
 
             // Parse collection name
             if (collectionNameAttribute != null)
             {
                 collectionName = ((CollectionName)collectionNameAttribute).Name;
-            }
-            else if (this.VirtualCollectionEnabled && virtualCollectionNameAttribute != null)
-            {
-                collectionName = ((VirtualCollectionName)virtualCollectionNameAttribute).Name;
             }
             else if (this.VirtualCollectionEnabled && this.HasVirtualCollectionDefault)
             {

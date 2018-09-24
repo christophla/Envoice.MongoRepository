@@ -41,9 +41,6 @@ namespace Envoice.MongoRepository
                 cm.MapIdMember(c => c.Id)
                     .SetSerializer(new StringSerializer(BsonType.ObjectId))
                     .SetIdGenerator(StringObjectIdGenerator.Instance);
-
-                //TODO: Make this configurable at runtime
-                cm.GetMemberMap(m => m.ObjectTypeId).SetElementName("_type");
             });
 
         }

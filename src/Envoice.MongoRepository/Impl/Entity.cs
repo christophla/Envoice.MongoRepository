@@ -27,21 +27,5 @@ namespace Envoice.MongoRepository
         [DataMember]
         [BsonRepresentation(BsonType.ObjectId)]
         public virtual string Id { get; set; }
-
-        /// <summary>
-        /// The object type id.
-        /// </summary>
-        /// <remarks>
-        /// Used for virtual collections.
-        /// </remarks>
-        /// <returns></returns>
-        [DataMember]
-        public virtual string ObjectTypeId { get; set; }
-
-        /// <summary>
-        /// The date the object was created.
-        /// </summary>
-        [DataMember]
-        public DateTime CreatedOn { get; private set; }
     }
 }

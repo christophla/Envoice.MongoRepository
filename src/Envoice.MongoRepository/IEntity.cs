@@ -16,16 +16,6 @@ namespace Envoice.MongoRepository
         /// <value>Id of the Entity.</value>
         [BsonId]
         TKey Id { get; set; }
-
-        /// <summary>
-        /// The date the entity was created
-        /// </summary>
-        DateTime CreatedOn { get; }
-
-        /// <summary>
-        /// The object type id (virtual collection)
-        /// </summary>
-        string ObjectTypeId { get; set; }
     }
 
     /// <summary>

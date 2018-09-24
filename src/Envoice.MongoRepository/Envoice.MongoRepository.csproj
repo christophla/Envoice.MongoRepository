@@ -5,7 +5,7 @@
         <Authors>Christopher Town</Authors>
         <Company>Envoice</Company>
         <Copyright>MIT</Copyright>
-        <Description>Mongo Repository library supporting virtual collections</Description>
+        <Description>Mongo Repository library</Description>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <IncludeSource>true</IncludeSource>
         <IncludeSymbols>true</IncludeSymbols>
