@@ -2,25 +2,21 @@
 .SYNOPSIS
 	Project tasks
 .PARAMETER Build
-	Builds a Docker image.
+	Builds the solution projects.
 .PARAMETER Clean
-	Removes the image test_image and kills all containers based on that image.
+	Cleans all solution project files
 .PARAMETER Compose
 	Runs docker-compose.
-.PARAMETER ComposeForDebug
-    Builds the image and runs docker-compose.
 .PARAMETER IntegrationTests
-    Builds the image and runs docker-compose and executes the integration tests.
+    Builds the projects and executes the integration tests.
 .PARAMETER NuGetPublish
-	Deploys the NuGet projects.
+	Deploys the nuget projects.
 .PARAMETER UnitTests
-	Builds the image and runs the unit tests.
+	Builds the projects and runs the unit tests.
 .PARAMETER Environment
-	The environment to build for (Debug or Release), defaults to Debug
-.PARAMETER Quiet
-	Hides the welcome message
+	The envirponment to build for (Debug or Release), defaults to Debug
 .EXAMPLE
-	C:\PS> .\project-tasks.ps1 -Build (Build a Docker image named test_image)
+	C:\PS> .\project-tasks.ps1 -Build -Debug
 #>
 
 # #############################################################################
@@ -30,17 +26,12 @@
 Param(
     [switch]$Build,
     [switch]$Clean,
-    [switch]$Compose,
-    [switch]$ComposeForDebug,
-    [switch]$IntegrationTests,
     [switch]$NuGetPublish,
-    [switch]$TestAll,
     [switch]$UnitTests,
     [switch]$Quiet,
     [ValidateNotNullOrEmpty()]
     [String]$Environment = "Debug"
 )
-
 
 # #############################################################################
 # Settings
@@ -85,113 +76,25 @@ Function BuildProject () {
 
 
 # #############################################################################
-# Builds the Docker image
-#
-Function BuildImage () {
-
-    Write-Host "++++++++++++++++++++++++++++++++++++++++++++++++" -ForegroundColor "Green"
-    Write-Host "+ Building docker image                         " -ForegroundColor "Green"
-    Write-Host "++++++++++++++++++++++++++++++++++++++++++++++++" -ForegroundColor "Green"
-
-    $composeFileName = "docker-compose.yml"
-    if ($Environment -ne "Debug") {
-        $composeFileName = "docker-compose.$Environment.yml"
-    }
-
-    if (Test-Path $composeFileName) {
-        Write-Host "Building the image $ImageName ($Environment)." -ForegroundColor "Yellow"
-        docker-compose -f "$composeFileName" build
-    }
-    else {
-        Write-Error -Message "$Environment is not a valid parameter. File '$composeFileName' does not exist." -Category InvalidArgument
-    }
-}
-
-
-# #############################################################################
-# Kills all running containers of an image and then removes them
+# Cleans the project
 #
 Function CleanAll () {
 
     Write-Host "++++++++++++++++++++++++++++++++++++++++++++++++" -ForegroundColor "Green"
-    Write-Host "+ Cleaning projects and docker images           " -ForegroundColor "Green"
+    Write-Host "+ Cleaning project                              " -ForegroundColor "Green"
     Write-Host "++++++++++++++++++++++++++++++++++++++++++++++++" -ForegroundColor "Green"
 
     dotnet clean
-
-    $composeFileName = "docker-compose.yml"
-    if ($Environment -ne "Debug") {
-        $composeFileName = "docker-compose.$Environment.yml"
-    }
-
-    if (Test-Path $composeFileName) {
-        docker-compose -f "$composeFileName" down --rmi all
-
-        $danglingImages = $(docker images -q --filter 'dangling=true')
-        if (-not [String]::IsNullOrWhiteSpace($danglingImages)) {
-            docker rmi -f $danglingImages
-        }
-        Write-Host "Removed docker images" -ForegroundColor "Yellow"
-    }
-    else {
-        Write-Error -Message "$Environment is not a valid parameter. File '$composeFileName' does not exist." -Category InvalidArgument
-    }
 }
 
 
 # #############################################################################
-# Runs docker-compose
+# Deploys nuget packages to nuget feed
 #
-Function Compose () {
+Function NugetPublish () {
 
     Write-Host "++++++++++++++++++++++++++++++++++++++++++++++++" -ForegroundColor "Green"
-    Write-Host "+ Composing docker images                       " -ForegroundColor "Green"
-    Write-Host "++++++++++++++++++++++++++++++++++++++++++++++++" -ForegroundColor "Green"
-
-    $composeFileName = "docker-compose.yml"
-    if ($Environment -ne "Debug") {
-        $composeFileName = "docker-compose.$Environment.yml"
-    }
-
-    if (Test-Path $composeFileName) {
-        Write-Host "Running compose file $composeFileName" -ForegroundColor "Yellow"
-        docker-compose -f $composeFileName kill
-        docker-compose -f $composeFileName up -d
-    }
-    else {
-        Write-Error -Message "$Environment is not a valid parameter. File '$dockerFileName' does not exist." -Category InvalidArgument
-    }
-}
-
-
-# #############################################################################
-# Runs the integration tests
-#
-Function IntegrationTests () {
-
-    Write-Host "++++++++++++++++++++++++++++++++++++++++++++++++" -ForegroundColor "Green"
-    Write-Host "+ Running integration tests                     " -ForegroundColor "Green"
-    Write-Host "++++++++++++++++++++++++++++++++++++++++++++++++" -ForegroundColor "Green"
-
-    Set-Location test
-
-    Get-ChildItem -Directory -Filter "*.IntegrationTests*" |
-        ForEach-Object {
-        Set-Location $_.FullName
-        dotnet test -c $Environment /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
-        Set-Location ..
-    }
-
-}
-
-
-# #############################################################################
-# Deploys Nuget packages to myget feed
-#
-Function NuGetPublish () {
-
-    Write-Host "++++++++++++++++++++++++++++++++++++++++++++++++" -ForegroundColor "Green"
-    Write-Host "+ Deploying Nuget packages to myget feed        " -ForegroundColor "Green"
+    Write-Host "+ Deploying to NuGet feed                       " -ForegroundColor "Green"
     Write-Host "++++++++++++++++++++++++++++++++++++++++++++++++" -ForegroundColor "Green"
 
     Write-Host "Using Key: $NugetKey" -ForegroundColor "Yellow"
@@ -201,43 +104,44 @@ Function NuGetPublish () {
     Get-ChildItem -Filter "*.nuspec" -Recurse -Depth 1 |
         ForEach-Object {
 
-        $packageName = $_.BaseName
-        Set-Location $_.BaseName
+            $packageName = $_.BaseName
+            Set-Location $_.BaseName
 
-        if ($NugetVersionSuffix) {
+            If ($NugetVersionSuffix) {
 
-            dotnet pack -c $Environment --include-source --include-symbols --version-suffix $NugetVersionSuffix
+                dotnet pack `
+                    -c $Environment `
+                    -o ../../.artifacts/nuget `
+                    --include-source `
+                    --include-symbols `
+                    --version-suffix $NugetVersionSuffix
 
-            Write-Host "Publishing: $packageName.$NugetVersion-$NugetVersionSuffix" -ForegroundColor "Yellow"
+            } Else {
 
-            Invoke-WebRequest `
-                -uri $NugetFeedUri `
-                -InFile "bin/$Environment/$packageName.$NugetVersion-$NugetVersionSuffix.nupkg" `
-                -Headers @{"X-NuGet-ApiKey" = "$NugetKey"} `
-                -Method "PUT" `
-                -ContentType "multipart/form-data"
-
-        }
-        else {
-
-            dotnet pack -c $Environment --include-source --include-symbols
-
-            Write-Host "Publishing: $packageName.$NugetVersion" -ForegroundColor "Yellow"
-
-            Invoke-WebRequest `
-                -uri $NugetFeedUri `
-                -InFile "bin/$Environment/$packageName.$NugetVersion.nupkg" `
-                -Headers @{"X-Nuget-ApiKey" = "$NugetKey"} `
-                -Method "PUT" `
-                -ContentType "multipart/form-data"
-
+            dotnet pack `
+                -c $Environment `
+                -o ../../.artifacts/nuget `
+                --include-source `
+                --include-symbols
         }
 
         Set-Location ..
     }
 
-}
+    Set-Location $ROOT_DIR
+    Set-Location ./.artifacts/nuget
 
+
+    Write-Host "Publishing Packages to $NugetFeedUri" -ForegroundColor "Yellow"
+
+    dotnet nuget push *.nupkg `
+        -k $NugetKey `
+        -s $NugetFeedUri
+
+    Set-Location $ROOT_DIR
+
+    Remove-Item .\.artifacts\nuget -Force -Recurse
+}
 
 # #############################################################################
 # Runs the unit tests
@@ -250,50 +154,32 @@ Function UnitTests () {
 
     Set-Location test
 
-    Get-ChildItem -Directory -Filter "*.UnitTests*" |
+    Get-ChildItem -Directory -Filter "*.Tests*" |
         ForEach-Object {
         Set-Location $_.FullName # or whatever
-        dotnet test -c $Environment /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+        dotnet test
         Set-Location ..
     }
 
 }
 
-
 # #############################################################################
-# Call the correct Function for the parameter that was used
+# Call the correct Function for the switch
 #
 
 If(!$Quiet) { Welcome }
 
-if ($Build) {
+If ($Build) {
     BuildProject
-    BuildImage
 }
-elseif ($Clean) {
+ElseIf ($Clean) {
     CleanAll
 }
-elseif ($Compose) {
-    Compose
+ElseIf ($NuGetPublish) {
+    NugetPublish
 }
-elseif ($ComposeForDebug) {
-    $env:REMOTE_DEBUGGING = "enabled"
-    BuildProject
-    #BuildImage
-    Compose
-}
-elseif ($IntegrationTests) {
-    #BuildProject
-    #Compose
-    IntegrationTests
-}
-elseif ($NuGetPublish) {
-    NuGetPublish
-}
-elseif ($UnitTests) {
-    BuildProject
+ElseIf ($UnitTests) {
     UnitTests
 }
-
 
 # #############################################################################

@@ -8,7 +8,6 @@ namespace Envoice.MongoRepository
     /// <summary>
     /// Abstract Entity for all the BusinessEntities.
     /// </summary>
-    [DataContract]
     [Serializable]
     [BsonIgnoreExtraElements(Inherited = true)]
     public abstract class Entity : IEntity<string>
@@ -24,7 +23,6 @@ namespace Envoice.MongoRepository
         /// <summary>
         /// The object id
         /// </summary>
-        [DataMember]
         [BsonRepresentation(BsonType.ObjectId)]
         public virtual string Id { get; set; }
     }

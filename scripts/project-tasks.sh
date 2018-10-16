@@ -52,99 +52,17 @@ buildProject () {
 
 
 # #############################################################################
-# Kills all running containers of an image
+# Cleans the project
 #
-clean() {
+cleanAll() {
 
     echo -e "${GREEN}"
     echo -e "++++++++++++++++++++++++++++++++++++++++++++++++"
-    echo -e "+ Cleaning projects and docker images           "
+    echo -e "+ Cleaning project                              "
     echo -e "++++++++++++++++++++++++++++++++++++++++++++++++"
     echo -e "${RESTORE}"
 
-    if [[ -z $ENVIRONMENT ]]; then
-        ENVIRONMENT="debug"
-    fi
-
-    composeFileName="docker-compose.yml"
-    if [[ $ENVIRONMENT != "debug" ]]; then
-        composeFileName="docker-compose.$ENVIRONMENT.yml"
-    fi
-
-    if [[ ! -f $composeFileName ]]; then
-        echo -e "${RED} $ENVIRONMENT is not a valid parameter. File '$composeFileName' does not exist. ${RESTORE}\n"
-    else
-        docker-compose -f $composeFileName down --rmi all
-
-        # Remove any dangling images (from previous builds)
-        danglingImages=$(docker images -q --filter 'dangling=true')
-        if [[ ! -z $danglingImages ]]; then
-        docker rmi -f $danglingImages
-        fi
-
-        echo -en "${YELLOW} Removed docker images ${RESTORE}\n"
-    fi
-}
-
-
-# #############################################################################
-# Runs docker-compose.
-#
-compose () {
-
-    echo -e "${GREEN}"
-    echo -e "++++++++++++++++++++++++++++++++++++++++++++++++"
-    echo -e "+ Composing docker images                       "
-    echo -e "++++++++++++++++++++++++++++++++++++++++++++++++"
-    echo -e "${RESTORE}"
-
-    if [[ -z $ENVIRONMENT ]]; then
-        ENVIRONMENT="debug"
-    fi
-
-    composeFileName="docker-compose.yml"
-    if [[ $ENVIRONMENT != "debug" ]]; then
-        composeFileName="docker-compose.$ENVIRONMENT.yml"
-    fi
-
-    if [[ ! -f $composeFileName ]]; then
-        echo -e "${RED} $ENVIRONMENT is not a valid parameter. File '$composeFileName' does not exist. ${RESTORE}\n"
-    else
-
-        echo -e "${YELLOW} Building the image $imageName ($ENVIRONMENT). ${RESTORE}\n"
-        docker-compose -f "$composeFileName" build
-
-        echo -e "${YELLOW} Creating the container $imageName ${RESTORE}\n"
-        docker-compose -f $composeFileName kill
-        docker-compose -f $composeFileName up -d
-    fi
-}
-
-
-# #############################################################################
-# Runs the integration tests.
-#
-integrationTests () {
-
-    echo -e "${GREEN}"
-    echo -e "++++++++++++++++++++++++++++++++++++++++++++++++"
-    echo -e "+ Running integration tests                     "
-    echo -e "++++++++++++++++++++++++++++++++++++++++++++++++"
-    echo -e "${RESTORE}"
-
-    for dir in test/*.IntegrationTests*/ ; do
-        [ -e "$dir" ] || continue
-        dir=${dir%*/}
-        echo -e ${dir##*/}
-        cd $dir
-        dotnet test -c $ENVIRONMENT /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
-        rtn=$?
-        if [ "$rtn" != "0" ]; then
-        exit $rtn
-        fi
-    done
-
-    cd $ROOT_DIR
+    dotnet clean
 }
 
 
@@ -155,13 +73,12 @@ nugetPublish () {
 
     echo -e "${GREEN}"
     echo -e "++++++++++++++++++++++++++++++++++++++++++++++++"
-    echo -e "+ Deploying nuget packages to nuget feed        "
-    echo -e "+ ${branch}                                     "
+    echo -e "+ Deploying nuget packages to Nuget feed        "
     echo -e "++++++++++++++++++++++++++++++++++++++++++++++++"
     echo -e "${RESTORE}"
 
     if [ -z "$nugetKey" ]; then
-        echo "${RED}You must set the MYGET_KEY_ENVOICE environment variable${RESTORE}"
+        echo "${RED}You must set the NUGET_KEY_ENVOICE environment variable${RESTORE}"
         exit 1
     fi
 
@@ -186,6 +103,7 @@ nugetPublish () {
                     --include-source \
                     --include-symbols
             else
+                echo -e "${YELLOW}Using suffix ${suffix}${RESTORE}"
                 dotnet pack \
                     -c $ENVIRONMENT \
                     -o ../../.artifacts/nuget \
@@ -199,6 +117,11 @@ nugetPublish () {
         cd ..
 
     done
+
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}An error occurred${RESTORE}"
+        exit 1
+    fi
 
     echo -e "${GREEN}"
     echo -e "++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -216,22 +139,6 @@ nugetPublish () {
     cd $ROOT_DIR
 
     rm -rf ./artifacts/nuget
-
-}
-
-
-# #############################################################################
-# Sets up the project
-#
-setup () {
-
-    echo -e "${GREEN}"
-    echo -e "++++++++++++++++++++++++++++++++++++++++++++++++"
-    echo -e "+ Setting up project                            "
-    echo -e "++++++++++++++++++++++++++++++++++++++++++++++++"
-    echo -e "${RESTORE}"
-
-    echo -e "${YELLOW} Done ${RESTORE}"
 }
 
 
@@ -246,7 +153,7 @@ unitTests () {
     echo -e "++++++++++++++++++++++++++++++++++++++++++++++++"
     echo -e "${RESTORE}"
 
-    for dir in test/*.UnitTests*/ ; do
+    for dir in test/*.Tests*/ ; do
         [ -e "$dir" ] || continue
         dir=${dir%*/}
         echo -e ${dir##*/}
@@ -266,36 +173,25 @@ unitTests () {
 # Shows the usage for the script.
 #
 showUsage () {
-
     echo -e "${YELLOW}"
     echo -e "Usage: project-tasks.sh [COMMAND] (ENVIRONMENT)"
     echo -e "    Runs build or compose using specific environment (if not provided, debug environment is used)"
     echo -e ""
     echo -e "Commands:"
     echo -e "    build: Builds the project."
-    echo -e "    build: Builds the project for ci."
-    echo -e "    compose: Runs docker-compose."
-    echo -e "    clean: Removes the image '$imageName' and kills all containers based on that image."
-    echo -e "    composeForDebug: Builds the image and runs docker-compose."
-    echo -e "    integrationTests: Composes the project and runs all integration test projects with *IntegrationTests* in the project name."
+    echo -e "    build-ci: Builds the project for CI server."
+    echo -e "    clean: Cleans the project files"
     echo -e "    nugetPublish: Builds and packs the project and publishes to nuget feed."
-    echo -e "    setup: Setup the project."
-    echo -e "    testAll: Runs all tests for the project"
     echo -e "    unitTests: Runs all unit test projects with *UnitTests* in the project name."
     echo -e ""
     echo -e "Environments:"
     echo -e "    debug: Uses debug environment."
     echo -e "    release: Uses release environment."
     echo -e ""
-    echo -e "Quiet Mode:"
-    echo -e "    quiet: Turns off welcome message"
-    echo -e ""
     echo -e "Example:"
-    echo -e "    ./project-tasks.sh build debug quiet"
+    echo -e "    ./project-tasks.sh build debug"
     echo -e ""
-
     echo -e "${RESTORE}"
-
 }
 
 
@@ -306,49 +202,24 @@ if [ $# -eq 0 ]; then
     welcome
     showUsage
 else
-    # quiet mode
-    if [ -z "$3" ]; then
-        welcome
-    fi
-
     ENVIRONMENT=$(echo -e $2 | tr "[:upper:]" "[:lower:]")
     if [[ -z $ENVIRONMENT ]]; then ENVIRONMENT="debug"; fi
 
+    welcome
     case "$1" in
         "build")
             buildProject
+            buildImage
             ;;
         "build-ci")
-            compose
             unitTests
-            integrationTests
             nugetPublish
             ;;
         "clean")
-            clean
-            ;;
-        "compose")
-            compose
-            ;;
-        "composeForDebug")
-            export REMOTE_DEBUGGING="enabled"
-            compose
-            ;;
-        "integrationTests")
-            integrationTests
+            cleanAll
             ;;
         "nugetPublish")
             nugetPublish
-            ;;
-        "unitTests")
-            unitTests
-            ;;
-        "setup")
-            setup
-            ;;
-        "testAll")
-            unitTests
-            integrationTests
             ;;
         "unitTests")
             unitTests
@@ -358,5 +229,6 @@ else
             ;;
     esac
 fi
+
 
 # #############################################################################

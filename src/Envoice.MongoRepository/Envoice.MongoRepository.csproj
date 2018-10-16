@@ -13,7 +13,7 @@
         <PackageTags>dotnetcore, mongodb</PackageTags>
         <ProjectUrl>https://github.com/christophla/Envoice.MongoRepository</ProjectUrl>
         <RepositoryUrl>https://github.com/christophla/Envoice.MongoRepository</RepositoryUrl>
-        <VersionPrefix>1.1.0</VersionPrefix>
+        <VersionPrefix>1.2.0</VersionPrefix>
         <VersionSuffix>$(VersionSuffix)</VersionSuffix>
     </PropertyGroup>
 
@@ -21,7 +21,7 @@
         <PackageReference Include="Envoice.Conditions" Version="1.0.2" />
         <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.1.1" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.1" />
-        <PackageReference Include="MongoDB.Driver" Version="2.6.1" />
+        <PackageReference Include="MongoDB.Driver" Version="2.7.0" />
         <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
     </ItemGroup>
 
